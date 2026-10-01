@@ -1,0 +1,207 @@
+<Page x:Class="Biblioteca.WPF.Views.PrestamosPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Prestamos"
+      ScrollViewer.CanContentScroll="False">
+    <Grid Margin="32,20,32,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Registrar prestamo" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="Elija un socio y agregue uno o varios libros. Cabecera, detalle y stock se guardan en una sola transaccion."
+                       Style="{StaticResource PageSubtitle}" />
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="360" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Socio del prestamo -->
+                <ui:Card Grid.Row="0" Padding="16" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource IconBadge}" Background="{StaticResource InfoSoftBrush}">
+                            <ui:SymbolIcon Symbol="Person24" FontSize="22" Foreground="{StaticResource InfoBrush}" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Socio" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                            <ComboBox x:Name="cboSocios" IsEditable="True" IsTextSearchEnabled="True"
+                                      TextSearch.TextPath="Nombre"
+                                      SelectionChanged="cboSocios_SelectionChanged">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding DNI}" Width="90"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <TextBlock Text="{Binding Nombre}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <StackPanel Margin="0,0,28,0">
+                                <TextBlock Text="Pendientes" Style="{StaticResource HintText}" />
+                                <TextBlock x:Name="txtPendientes" Text="0" FontSize="20" FontWeight="SemiBold" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Limite" Style="{StaticResource HintText}" />
+                                <TextBlock x:Name="txtLimite" Text="3" FontSize="20" FontWeight="SemiBold" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </ui:Card>
+
+                <!-- Catalogo para agregar libros -->
+                <ui:Card Grid.Row="1" Padding="16" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBox x:Name="txtBuscarLibro" Grid.Column="0" Icon="{ui:SymbolIcon Search24}"
+                                        PlaceholderText="Buscar libro por titulo o autor."
+                                        ClearButtonEnabled="True" TextChanged="txtBuscarLibro_TextChanged" />
+                            <ui:Button x:Name="btnAgregar" Grid.Column="1" Margin="8,0,0,0" Padding="10"
+                                       Content="Agregar" Icon="{ui:SymbolIcon Add24}"
+                                       ToolTip="Agregar el libro seleccionado al prestamo"
+                                       Click="btnAgregar_Click" />
+                            <ui:Button x:Name="btnQuitar" Grid.Column="2" Margin="8,0,0,0" Padding="10"
+                                       Content="Quitar" Icon="{ui:SymbolIcon Dismiss24}"
+                                       ToolTip="Quitar el libro seleccionado de la lista"
+                                       Click="btnQuitar_Click" />
+                        </Grid>
+
+                        <DataGrid x:Name="dgCatalogo" Grid.Row="1" Style="{StaticResource ModernGrid}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Titulo" Binding="{Binding Titulo}" Width="2.5*"
+                                                    ElementStyle="{StaticResource TextCell}" />
+                                <DataGridTextColumn Header="Autor" Binding="{Binding NombreAutor}" Width="2*"
+                                                    ElementStyle="{StaticResource TextCell}" />
+                                <DataGridTextColumn Header="ISBN" Binding="{Binding ISBN}" Width="130"
+                                                    ElementStyle="{StaticResource TextCell}" />
+                                <DataGridTextColumn Header="Disponibles" Binding="{Binding Ejemplares}" Width="100"
+                                                    ElementStyle="{StaticResource NumberCell}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <StackPanel x:Name="emptyCatalogo" Grid.Row="1" Style="{StaticResource EmptyState}">
+                            <ui:SymbolIcon Symbol="Book24" FontSize="48" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                            <TextBlock x:Name="txtEmptyCatalogo" Text="No hay libros disponibles."
+                                       Margin="0,10,0,0" HorizontalAlignment="Center"
+                                       Style="{StaticResource HintText}" />
+                        </StackPanel>
+
+                        <ui:ProgressRing x:Name="busyCatalogo" Grid.Row="1" IsIndeterminate="True"
+                                         Width="48" Height="48" Visibility="Collapsed" />
+                    </Grid>
+                </ui:Card>
+            </Grid>
+
+            <!-- Lista del prestamo y confirmacion -->
+            <ui:Card Grid.Column="2" Padding="20" VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource IconBadge}" Width="36" Height="36" CornerRadius="8"
+                                Margin="0,0,12,0" Background="{StaticResource SuccessSoftBrush}">
+                            <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="18" Foreground="{StaticResource SuccessBrush}" />
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Libros del prestamo" Style="{StaticResource SectionTitle}" />
+                            <TextBlock x:Name="txtHintLista" Text="0 libro(s) agregados."
+                                       Style="{StaticResource HintText}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Border Margin="0,14,0,0" Padding="0" CornerRadius="8"
+                            Background="{StaticResource NeutralSoftBrush}">
+                        <StackPanel Margin="12,10,12,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Fecha del prestamo" Style="{StaticResource HintText}" />
+                                <DatePicker x:Name="dpFechaPrestamo" Grid.Column="1" Width="150"
+                                            VerticalContentAlignment="Center" />
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Dias de prestamo" Style="{StaticResource HintText}" />
+                                <ui:NumberBox x:Name="nbDias" Grid.Column="1" Width="150"
+                                              SmallChange="1" SpinButtonPlacementMode="Hidden"
+                                              ClearButtonEnabled="False"
+                                              ValueChanged="nbDias_ValueChanged" />
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Fecha limite" Style="{StaticResource HintText}" />
+                                <TextBlock x:Name="txtFechaLimite" Grid.Column="1" Text="-" FontSize="13"
+                                           VerticalAlignment="Center" FontWeight="SemiBold" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <DataGrid x:Name="dgPrestamo" Margin="0,14,0,0" Height="240" Style="{StaticResource ModernGrid}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Libro" Binding="{Binding Titulo}" Width="*"
+                                                ElementStyle="{StaticResource TextCell}" />
+                            <DataGridTextColumn Header="ISBN" Binding="{Binding ISBN}" Width="120"
+                                                ElementStyle="{StaticResource TextCell}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <ui:Button x:Name="btnRegistrar" Margin="0,20,0,0" Content="Registrar prestamo"
+                               HorizontalAlignment="Stretch" Appearance="Primary"
+                               Icon="{ui:SymbolIcon Save24}" ToolTip="Guardar el prestamo (Ctrl+S)"
+                               Click="btnRegistrar_Click" />
+
+                    <!-- Indicador de carga -->
+                    <ui:ProgressRing x:Name="busyRing" Margin="0,16,0,0" IsIndeterminate="True"
+                                     Width="40" Height="40" HorizontalAlignment="Center"
+                                     Visibility="Collapsed" />
+
+                    <TextBlock Margin="0,20,0,0" Style="{StaticResource HintText}"
+                               Text="Reglas: maximo 3 libros pendientes por socio, no se presta a socios ni libros inactivos, y no se presta sin ejemplares." />
+                    <TextBlock Margin="0,6,0,0" Style="{StaticResource HintText}"
+                               Text="Atajo: Ctrl+S registrar" />
+                </StackPanel>
+            </ui:Card>
+        </Grid>
+    </Grid>
+</Page>

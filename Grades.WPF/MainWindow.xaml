@@ -1,0 +1,49 @@
+<ui:FluentWindow x:Class="Grades.WPF.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 xmlns:views="clr-namespace:Grades.WPF.Views"
+                 Title="Grades" Width="1320" Height="820" MinWidth="1100" MinHeight="700"
+                 WindowStartupLocation="CenterScreen"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica"
+                 WindowCornerPreference="Round">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Barra de título propia (estilo Windows 11) con botón para cambiar el tema -->
+        <ui:TitleBar Grid.Row="0" Title="Grades · Student grade management"
+                     Icon="{ui:SymbolIcon HatGraduation24}">
+            <ui:TitleBar.TrailingContent>
+                <ui:Button x:Name="btnTheme" Appearance="Transparent" BorderThickness="0"
+                           Padding="10,6" Margin="0,0,8,0" ToolTip="Switch light / dark theme"
+                           Icon="{ui:SymbolIcon WeatherMoon24}" Click="btnTheme_Click" />
+            </ui:TitleBar.TrailingContent>
+        </ui:TitleBar>
+
+        <!-- Menú lateral: cada opción abre una página -->
+        <ui:NavigationView x:Name="RootNavigation" Grid.Row="1"
+                           PaneDisplayMode="Left" OpenPaneLength="220"
+                           IsBackButtonVisible="Collapsed" IsPaneToggleVisible="True">
+            <ui:NavigationView.MenuItems>
+                <ui:NavigationViewItem Content="Students" Icon="{ui:SymbolIcon PeopleTeam24}"
+                                       TargetPageType="{x:Type views:StudentsPage}" />
+                <ui:NavigationViewItem Content="Grades" Icon="{ui:SymbolIcon Notebook24}"
+                                       TargetPageType="{x:Type views:GradesPage}" />
+            </ui:NavigationView.MenuItems>
+
+            <!-- Las notificaciones (Snackbar) aparecen encima del contenido -->
+            <ui:NavigationView.ContentOverlay>
+                <Grid>
+                    <ui:SnackbarPresenter x:Name="SnackbarPresenter" />
+                </Grid>
+            </ui:NavigationView.ContentOverlay>
+        </ui:NavigationView>
+
+        <!-- Contenedor de los diálogos de confirmación -->
+        <ui:ContentDialogHost x:Name="RootDialogHost" Grid.Row="0" Grid.RowSpan="2" />
+    </Grid>
+</ui:FluentWindow>

@@ -1,0 +1,166 @@
+<Page x:Class="Biblioteca.WPF.Views.DevolucionesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Devoluciones"
+      ScrollViewer.CanContentScroll="False">
+    <Grid Margin="32,20,32,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Registrar devolucion" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="Elija el prestamo y el libro a devolver. La multa por retraso la calcula la capa de Negocio."
+                       Style="{StaticResource PageSubtitle}" />
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="360" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Prestamos pendientes y sus libros -->
+            <ui:Card Grid.Column="0" Padding="16" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Prestamos pendientes" VerticalAlignment="Center"
+                                   Style="{StaticResource SectionTitle}" Margin="4,0,0,0" />
+                        <ui:Button x:Name="btnActualizar" Grid.Column="1" Padding="10"
+                                   Icon="{ui:SymbolIcon ArrowClockwise24}" ToolTip="Actualizar"
+                                   Click="btnActualizar_Click" />
+                    </Grid>
+
+                    <ComboBox x:Name="cboPrestamos" Grid.Row="1" Margin="0,0,0,12"
+                              IsEditable="True" IsTextSearchEnabled="True"
+                              TextSearch.TextPath="NombreSocio"
+                              SelectionChanged="cboPrestamos_SelectionChanged">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding PrestamoId}" Width="70"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{Binding NombreSocio}" Width="180" />
+                                    <TextBlock Text="{Binding FechaLimite, StringFormat='limite {0:dd/MM/yyyy}'}"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <DataGrid x:Name="dgDetalles" Grid.Row="2" Style="{StaticResource ModernGrid}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Libro" Binding="{Binding Titulo}" Width="*"
+                                                ElementStyle="{StaticResource TextCell}" />
+                            <DataGridTextColumn Header="Devuelto" Width="150"
+                                                Binding="{Binding FechaDevolucion, StringFormat={}{0:dd/MM/yyyy}, TargetNullValue=Pendiente}"
+                                                ElementStyle="{StaticResource TextCell}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Estado vacio -->
+                    <StackPanel x:Name="emptyState" Grid.Row="2" Style="{StaticResource EmptyState}">
+                        <ui:SymbolIcon Symbol="ArrowUpload24" FontSize="48" HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                        <TextBlock x:Name="txtEmpty" Text="No hay prestamos pendientes." Margin="0,10,0,0"
+                                   HorizontalAlignment="Center" Style="{StaticResource HintText}" />
+                    </StackPanel>
+
+                    <!-- Indicador de carga -->
+                    <ui:ProgressRing x:Name="busyRing" Grid.Row="2" IsIndeterminate="True"
+                                     Width="48" Height="48" Visibility="Collapsed" />
+                </Grid>
+            </ui:Card>
+
+            <!-- Datos de la devolucion -->
+            <ui:Card Grid.Column="2" Padding="20" VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource IconBadge}" Width="36" Height="36" CornerRadius="8"
+                                Margin="0,0,12,0" Background="{StaticResource WarningSoftBrush}">
+                            <ui:SymbolIcon Symbol="ArrowUpload24" FontSize="18" Foreground="{StaticResource WarningBrush}" />
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Devolucion" Style="{StaticResource SectionTitle}" />
+                            <TextBlock x:Name="txtHint" Text="Seleccione un prestamo."
+                                       Style="{StaticResource HintText}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Border Margin="0,16,0,0" Padding="14,12" CornerRadius="8"
+                            Background="{StaticResource NeutralSoftBrush}">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Socio" Style="{StaticResource HintText}" />
+                                <TextBlock x:Name="txtSocio" Grid.Column="1" Text="-" FontWeight="SemiBold" />
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Fecha limite" Style="{StaticResource HintText}" />
+                                <TextBlock x:Name="txtLimite" Grid.Column="1" Text="-" FontWeight="SemiBold" />
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Fecha de devolucion" Style="{StaticResource HintText}" />
+                                <DatePicker x:Name="dpDevolucion" Grid.Column="1" Width="150"
+                                            VerticalContentAlignment="Center"
+                                            SelectedDateChanged="dpDevolucion_SelectedDateChanged" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Multa: la calcula la capa de Negocio (S/ 1.50 por dia de retraso) -->
+                    <Border Margin="0,16,0,0" Padding="14,12" CornerRadius="8"
+                            Background="{StaticResource WarningSoftBrush}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Multa por retraso" Style="{StaticResource HintText}" />
+                                <TextBlock x:Name="txtMulta" Text="S/ 0.00" FontSize="26" FontWeight="SemiBold"
+                                           Foreground="{StaticResource WarningBrush}" />
+                                <TextBlock x:Name="txtDias" Text="0 dia(s) de retraso" Style="{StaticResource HintText}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <ui:Button x:Name="btnDevolver" Margin="0,20,0,0" Content="Registrar devolucion"
+                               HorizontalAlignment="Stretch" Appearance="Primary"
+                               Icon="{ui:SymbolIcon Save24}" IsEnabled="False" ToolTip="Confirmar (Ctrl+S)"
+                               Click="btnDevolver_Click" />
+
+                    <TextBlock Margin="0,20,0,0" Style="{StaticResource HintText}"
+                               Text="Reglas: solo se devuelven libros pendientes del prestamo elegido. Al devolver, el ejemplar vuelve al stock y, si ya no queda nada pendiente, el prestamo pasa a Devuelto." />
+                    <TextBlock Margin="0,6,0,0" Style="{StaticResource HintText}"
+                               Text="Atajo: Ctrl+S confirmar" />
+                </StackPanel>
+            </ui:Card>
+        </Grid>
+    </Grid>
+</Page>
